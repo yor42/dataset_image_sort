@@ -42,6 +42,8 @@ def RenameFiles():
             break
     outputdir = os.path.join(pathtoimg, tag_time+'/'+tag_weather)
     start_number = len(glob.glob1(outputdir, "*."+ext))+1
+    if not os.path.exists(outputdir):
+        os.makedirs(outputdir)
 
     print(tag_time, tag_weather, ', from', start_number)
     # print(files_jpg)
