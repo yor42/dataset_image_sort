@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/catkin_workspace/catkin_workspace/src/vision_opencv" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/catkin_workspace/src/vision_opencv" vcs="Git" />
   </component>
 </project>

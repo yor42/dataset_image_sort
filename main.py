@@ -5,16 +5,48 @@
 import glob
 import os
 import shutil
+import cv2
+import rosbag
+
+import sys
+import numpy as np
+import rospy
+
+def imgmsg_to_cv2(img_msg):
+    if img_msg.encoding != "bgr8":
+        rospy.logerr("This Coral detect node has been hardcoded to the 'bgr8' encoding.  Come change the code if you're actually trying to implement a new camera")
+    dtype = np.dtype("uint8") # Hardcode to 8 bits...
+    dtype = dtype.newbyteorder('>' if img_msg.is_bigendian else '<')
+    image_opencv = np.ndarray(shape=(img_msg.height, img_msg.width, 3), # and three channels of data. Since OpenCV works with bgr natively, we don't need to reorder the channels.
+                    dtype=dtype, buffer=img_msg.data)
+    # If the byt order is different between the message and the system.
+    if img_msg.is_bigendian == (sys.byteorder == 'little'):
+        image_opencv = image_opencv.byteswap().newbyteorder()
+    return image_opencv
+
+def extractImages(bagdir):
+    filelist = glob.glob1(bagdir, "*.bag")
+    for bagfile in filelist:
+        bag = rosbag.Bag(os.path.join(bagdir, bagfile), 'r')
+        topic = "/camera1/cv_camera/image_raw"
+        count = 0
+        imagedir = os.path.splitext(os.path.join(bagdir, bag.filename))[0]
+        if not os.path.isdir(imagedir):
+            os.makedirs(imagedir)
+
+        for topic, msg, t in bag.read_messages(topics=[topic]):
+            cv_img = imgmsg_to_cv2(msg)
+            cv2.imwrite(os.path.join(imagedir, "frame"+str(count)+".png"), cv_img)
+            print("Wrote image"+str(count)+"at"+str(imagedir))
+
+            count += 1
+
+        bag.close()
 
 
-def RenameFiles():
+
+def RenameFiles(inputdir):
     files = []
-    while True:
-        inputdir = input('Input Directory: ')  # 폴더 경로 입력
-        if os.path.isdir(inputdir):
-            break
-        else:
-            print('Invalid Directory! Please check if directory is valid.')
     ext = input('jpg / txt: ')  # 이미지 확장자
     for root, dirs, F in os.walk(inputdir):
         for file in F:
@@ -76,8 +108,22 @@ def RenameFiles():
 
 
 while True:
-    RenameFiles()
-    shouldrepeat = input('Continue Renaming files? (Y/N)')
+
+    while True:
+        directory = input('Input Directory: ')  # 폴더 경로 입력
+        if os.path.isdir(directory):
+            break
+        else:
+            print('Invalid Directory! Please check if directory is valid.')
+
+    extractbag = input('Extract images from rosbag first? (Y/N): ')
+    if extractbag == 'Y' or 'y':
+        extractImages(directory)
+
+    shouldrename = input('Extract images from rosbag first? (Y/N): ')
+    if shouldrename == 'Y' or 'y':
+        RenameFiles(directory)
+    shouldrepeat = input('Continue Renaming files? (Y/N): ')
     if shouldrepeat == 'N':
         break
     elif shouldrepeat != 'Y':
