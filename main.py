@@ -14,7 +14,8 @@ import rospy
 
 def imgmsg_to_cv2(img_msg):
     if img_msg.encoding != "bgr8":
-        rospy.logerr("This Coral detect node has been hardcoded to the 'bgr8' encoding.  Come change the code if you're actually trying to implement a new camera")
+        rospy.logerr("This Coral detect node has been hardcoded to the 'bgr8' encoding. Come change the code if "
+                     "you're actually trying to implement a new camera")
     dtype = np.dtype("uint8") # Hardcode to 8 bits...
     dtype = dtype.newbyteorder('>' if img_msg.is_bigendian else '<')
     image_opencv = np.ndarray(shape=(img_msg.height, img_msg.width, 3), # and three channels of data. Since OpenCV works with bgr natively, we don't need to reorder the channels.
@@ -38,7 +39,6 @@ def extractImages(bagdir):
             cv_img = imgmsg_to_cv2(msg)
             cv2.imwrite(os.path.join(imagedir, "frame"+str(count)+".png"), cv_img)
             print("Wrote image"+str(count)+"at"+str(imagedir))
-
             count += 1
 
         bag.close()
@@ -69,7 +69,7 @@ def RenameFiles(inputdir):
     tag_weather = input('sunny / cludy / foggy / rainy: ')  # 파일명-날씨 입력받음
 
     while True:
-        pathtoimg = input("Please Enter the path to img folder on root of dataset")  # 폴더 경로 입력
+        pathtoimg = input("Please Enter the path to img folder on root of dataset: ")  # 폴더 경로 입력
         if os.path.isdir(inputdir):
             break
     outputdir = os.path.join(pathtoimg, tag_time+'/'+tag_weather)
@@ -121,10 +121,10 @@ while True:
         extractImages(directory)
 
     shouldrename = input('Extract images from rosbag first? (Y/N): ')
-    if shouldrename == 'Y' or 'y':
+    if shouldrename == 'Y' or 'y' or 'yes' or 'Yes':
         RenameFiles(directory)
     shouldrepeat = input('Continue Renaming files? (Y/N): ')
-    if shouldrepeat == 'N':
+    if shouldrepeat == 'N' or 'n' or 'no' or 'No':
         break
     elif shouldrepeat != 'Y':
         print("please type Y(yes) or N(no)")
