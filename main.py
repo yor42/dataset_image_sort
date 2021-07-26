@@ -36,7 +36,7 @@ def extractImages(bagdir):
 
         for topic, msg, t in bag.read_messages(topics=[topic]):
             cv_img = imgmsg_to_cv2(msg)
-            cv2.imwrite(os.path.join(imagedir, "frame"+str(count)+".png"), cv_img)
+            cv2.imwrite(os.path.join(imagedir, "frame"+str(count)+".jpg"), cv_img)
             print("Wrote image"+str(count)+"at"+str(imagedir))
 
             count += 1
@@ -117,11 +117,11 @@ while True:
             print('Invalid Directory! Please check if directory is valid.')
 
     extractbag = input('Extract images from rosbag first? (Y/N): ')
-    if extractbag == 'Y' or 'y':
+    if extractbag == 'Y' or extractbag == 'y':
         extractImages(directory)
 
     shouldrename = input('Extract images from rosbag first? (Y/N): ')
-    if shouldrename == 'Y' or 'y':
+    if shouldrename == 'Y' or extractbag == 'y':
         RenameFiles(directory)
     shouldrepeat = input('Continue Renaming files? (Y/N): ')
     if shouldrepeat == 'N':
