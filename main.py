@@ -38,7 +38,7 @@ def extractImages(bagdir):
         for topic, msg, t in bag.read_messages(topics=[topic]):
             cv_img = imgmsg_to_cv2(msg)
             cv2.imwrite(os.path.join(imagedir, "frame"+str(count)+".jpg"), cv_img)
-            print("Wrote image"+str(count)+"at"+str(imagedir))
+            print("Wrote image"+str(count)+" at "+str(imagedir))
             count += 1
 
         bag.close()
