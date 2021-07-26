@@ -37,7 +37,7 @@ def extractImages(bagdir):
 
         for topic, msg, t in bag.read_messages(topics=[topic]):
             cv_img = imgmsg_to_cv2(msg)
-            cv2.imwrite(os.path.join(imagedir, "frame"+str(count)+".png"), cv_img)
+            cv2.imwrite(os.path.join(imagedir, "frame"+str(count)+".jpg"), cv_img)
             print("Wrote image"+str(count)+"at"+str(imagedir))
             count += 1
 
@@ -74,6 +74,11 @@ def RenameFiles(inputdir):
             break
     outputdir = os.path.join(pathtoimg, tag_time+'/'+tag_weather)
     start_number = len(glob.glob1(outputdir, "*."+ext))+1
+
+    isnumbercorrect = input("Firse Data index calculated by program is "+str(start_number)+". is this number correct? (Y/N)")
+    if isnumbercorrect == 'N' or extractbag == 'n' or extractbag == 'no' or extractbag == 'No':
+        start_number = input("Please Enter the first index of output file.(usually the number of existing file +1)")
+
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
 
@@ -117,14 +122,14 @@ while True:
             print('Invalid Directory! Please check if directory is valid.')
 
     extractbag = input('Extract images from rosbag first? (Y/N): ')
-    if extractbag == 'Y' or 'y':
+    if extractbag == 'Y' or extractbag == 'y':
         extractImages(directory)
 
     shouldrename = input('Extract images from rosbag first? (Y/N): ')
-    if shouldrename == 'Y' or 'y' or 'yes' or 'Yes':
+    if shouldrename == 'Y' or extractbag == 'y' or extractbag == 'yes' or extractbag == 'Yes':
         RenameFiles(directory)
     shouldrepeat = input('Continue Renaming files? (Y/N): ')
-    if shouldrepeat == 'N' or 'n' or 'no' or 'No':
+    if shouldrepeat == 'N' or extractbag == 'n' or extractbag == 'no' or extractbag == 'No':
         break
     elif shouldrepeat != 'Y':
         print("please type Y(yes) or N(no)")
