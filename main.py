@@ -125,7 +125,7 @@ while True:
     if extractbag == 'Y' or extractbag == 'y':
         extractImages(directory)
 
-    shouldrename = input('Extract images from rosbag first? (Y/N): ')
+    shouldrename = input('Proceed to Renaming Process? (Y/N): ')
     if shouldrename == 'Y' or extractbag == 'y' or extractbag == 'yes' or extractbag == 'Yes':
         RenameFiles(directory)
     shouldrepeat = input('Continue Renaming files? (Y/N): ')
