@@ -7,12 +7,13 @@ import os
 import shutil
 import cv2
 import rosbag
-
+import csv
 import sys
 import numpy as np
 import rospy
 
 def imgmsg_to_cv2(img_msg):
+
     if img_msg.encoding != "bgr8":
         rospy.logerr("This Coral detect node has been hardcoded to the 'bgr8' encoding. Come change the code if "
                      "you're actually trying to implement a new camera")
@@ -29,18 +30,33 @@ def extractImages(bagdir):
     filelist = glob.glob1(bagdir, "*.bag")
     for bagfile in filelist:
         bag = rosbag.Bag(os.path.join(bagdir, bagfile), 'r')
-        topic = "/camera1/cv_camera/image_raw"
-        count = 0
+        topicCamera = "/camera1/cv_camera/image_raw"
+        topicCSV = ""
         imagedir = os.path.splitext(os.path.join(bagdir, bag.filename))[0]
         if not os.path.isdir(imagedir):
             os.makedirs(imagedir)
-
-        for topic, msg, t in bag.read_messages(topics=[topic]):
-            cv_img = imgmsg_to_cv2(msg)
-            cv2.imwrite(os.path.join(imagedir, "frame"+str(count)+".jpg"), cv_img)
-            print("Wrote image"+str(count)+" at "+str(imagedir))
-            count += 1
-
+        idx = 0
+        latestCSV = None
+        latestImg = None
+        for topic, msg, t in bag.read_messages(topics=[topicCamera]):
+            if topic == topicCSV:
+                msgString = str(msg)
+                msgList = msgString.split('\n')
+                latestCSV = msgList
+                #handle CSV Image
+            elif topic == topicCamera:
+                cv_img = imgmsg_to_cv2(msg)
+                latestImg = cv_img
+                cv2.imwrite(os.path.join(imagedir, str(t.secs)+"_"+str(t.nsecs)+".jpg"), cv_img)
+                print("Wrote "+str(t.secs)+"_"+str(t.nsecs)+".jpg"+" at "+str(imagedir))
+            filename = os.path.join(imagedir, str(idx))
+            if latestCSV is not None and latestImg is not None:
+                cv2.imwrite(filename+".jpg", latestImg)
+                with open(filename+".csv", 'w+', newline='') as csvfile:
+                    filewriter = csv.writer(csvfile)
+                    filewriter.writerows(latestCSV)
+                    csvfile.close()
+            idx += 1
         bag.close()
 
 
